@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026名古屋亞帕運中華台北代表團據點查詢系統</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+  :root {
+    --navy: #1c2b45;
+    --navy-light: #2c4066;
+    --accent: #c0392b;
+    --bg: #f5f6f8;
+    --panel-bg: #ffffff;
+    --border: #dde1e7;
+    --text-main: #23272f;
+    --text-sub: #6b7280;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--accent);
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+
+  header .subtitle {
+    font-size: 12px;
+    color: #c7cedd;
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* 英文副標：桌機顯示完整版，手機顯示精簡版（by media query 切換） */
+  .subtitle-mobile {
+    display: none;
+  }
+
+  /* 頁首右上角：單位資訊區塊（單位名稱＋內部參考使用） */
+  header .org-info {
+    flex-shrink: 0;
+    margin-left: 24px;
+    text-align: right;
+  }
+
+  header .org-tag {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  header .internal-use {
+    margin-top: 4px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* 第二行單位提醒文字：桌機顯示原文字，手機顯示精簡版（by media query 切換） */
+  .internal-use-mobile {
+    display: none;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  /* 左側清單 */
+  #sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    background: var(--panel-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sidebar .sidebar-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    background: #eef1f6;
+  }
+
+  #sidebar .sidebar-header .count {
+    color: var(--text-sub);
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  /* 頁籤內搜尋框：位於清單標題與資料清單之間 */
+  #search-container {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-bg);
+    flex-shrink: 0;
+  }
+
+  #search-container input#list-search {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    outline: none;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #search-container input#list-search::placeholder {
+    color: var(--text-sub);
+  }
+
+  #search-container input#list-search:focus {
+    border-color: var(--navy-light);
+    box-shadow: 0 0 0 3px rgba(44, 64, 102, 0.12);
+  }
+
+  /* 清單無符合結果時的提示文字（為 <li> 元素，覆寫預設清單項目樣式） */
+  #accommodation-list li.list-empty {
+    padding: 20px 18px;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 13px;
+    cursor: default;
+    border-bottom: none;
+  }
+
+  #accommodation-list li.list-empty:hover {
+    background: none;
+  }
+
+
+  /* 左側清單分頁按鈕 */
+  #sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  #sidebar-tabs button {
+    flex: 1;
+    border: none;
+    background: #eef1f6;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 4px;
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 3px solid transparent;
+  }
+
+  #sidebar-tabs button:hover {
+    background: #e5eaf3;
+  }
+
+  #sidebar-tabs button.active {
+    background: var(--panel-bg);
+    color: var(--navy);
+  }
+
+  #sidebar-tabs button[data-tab="accommodation"].active {
+    border-bottom-color: #2c4066;
+  }
+
+  #sidebar-tabs button[data-tab="venue"].active {
+    border-bottom-color: #c0392b;
+  }
+
+  #sidebar-tabs button[data-tab="relay"].active {
+    border-bottom-color: #1f9d55;
+  }
+
+  #sidebar-tabs button[data-tab="training"].active {
+    border-bottom-color: #d9a400;
+  }
+
+  /* 分頁按鈕筆數標籤：桌機版隱藏，僅在手機版（見下方 media query）顯示 */
+  #sidebar-tabs button .tab-count {
+    display: none;
+  }
+
+  #accommodation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  #accommodation-list li {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  #accommodation-list li:hover {
+    background: #f0f3f8;
+  }
+
+  #accommodation-list li.active {
+    background: #eaf0fb;
+    border-left: 4px solid var(--navy-light);
+    padding-left: 14px;
+  }
+
+  /* Active 項目左側線條依目前分類顯示對應顏色，背景維持統一淺色，不使用大面積鮮豔底色 */
+  #accommodation-list li.cat-relay.active {
+    border-left-color: #1f9d55;
+  }
+
+  #accommodation-list li.cat-venue.active {
+    border-left-color: #c0392b;
+  }
+
+  #accommodation-list li.cat-accommodation.active {
+    border-left-color: #2c4066;
+  }
+
+  #accommodation-list li.cat-training.active {
+    border-left-color: #d9a400;
+  }
+
+  #accommodation-list .item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  #accommodation-list .item-sport {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--navy-light);
+    background: #e5eaf3;
+    border-radius: 3px;
+    padding: 1px 8px;
+    margin-bottom: 4px;
+  }
+
+  /* 依分頁區分小標籤顏色：住宿=深藍（預設）、比賽場館=紅、中繼站=綠 */
+  #accommodation-list .item-sport.tag-venue {
+    color: #c0392b;
+    background: #fbe6e3;
+  }
+
+  #accommodation-list .item-sport.tag-relay {
+    color: #1f9d55;
+    background: #e2f5ea;
+  }
+
+  #accommodation-list .item-sport.tag-training {
+    color: #8a6700;
+    background: #fef3c7;
+  }
+
+  #accommodation-list .item-address {
+    font-size: 12px;
+    color: var(--text-sub);
+    line-height: 1.4;
+  }
+
+  /* 地圖 */
+  #map {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* 圖層開關控制面板 */
+  .layer-control {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    min-width: 130px;
+  }
+
+  .layer-control .layer-control-title {
+    font-weight: 700;
+    color: var(--navy);
+    font-size: 12px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .layer-control label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+
+  .layer-control input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--navy-light);
+  }
+
+  .layer-control .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .swatch.accommodation { background: #2c4066; }
+  .swatch.venue { background: #c0392b; }
+  .swatch.relay { background: #1f9d55; }
+  .swatch.training { background: #d9a400; }
+
+  /* Leaflet popup 客製化 */
+  .leaflet-popup-content-wrapper {
+    border-radius: 4px;
+  }
+
+  .popup-content .popup-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+  }
+
+  .popup-content.popup-venue .popup-title {
+    border-bottom-color: #c0392b;
+  }
+
+  .popup-content.popup-relay .popup-title {
+    border-bottom-color: #1f9d55;
+  }
+
+  .popup-content.popup-training .popup-title {
+    border-bottom-color: #d9a400;
+  }
+
+  .popup-content table {
+    border-collapse: collapse;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  .popup-content table td {
+    vertical-align: top;
+    padding: 2px 0;
+  }
+
+  .popup-content table td.label {
+    color: var(--text-sub);
+    white-space: nowrap;
+    padding-right: 10px;
+    font-weight: 600;
+  }
+
+  .popup-content .popup-gmap-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #fff;
+    background: var(--navy-light);
+    padding: 4px 10px;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+
+  .popup-content .popup-gmap-link:hover {
+    background: var(--navy);
+  }
+
+  /* Popup 內按鈕列：Google Maps 查看 ＋ 路線查詢，並排顯示 */
+  .popup-content .popup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .popup-content .popup-actions .popup-gmap-link {
+    margin-top: 0;
+  }
+
+  .popup-content .popup-route-btn {
+    display: inline-block;
+    margin: 0;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--navy-light);
+    background: #fff;
+    border: 1px solid var(--navy-light);
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+
+  .popup-content .popup-route-btn:hover {
+    background: #eaf0fb;
+  }
+
+  /* ===================== 路線查詢 Modal ===================== */
+  .route-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 43, 69, 0.55);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .route-modal-overlay.open {
+    display: flex;
+  }
+
+  .route-modal {
+    background: #fff;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+    box-sizing: border-box;
+  }
+
+  .route-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--navy);
+    color: #fff;
+    border-radius: 6px 6px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .route-modal-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+
+  .route-modal-body {
+    padding: 16px;
+  }
+
+  .route-field {
+    margin-bottom: 12px;
+  }
+
+  .route-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .route-origin-label {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--navy);
+    padding: 9px 10px;
+    background: #eef1f6;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    word-break: break-word;
+  }
+
+  .route-select {
+    width: 100%;
+    height: 42px;
+    padding: 0 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-main);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .route-select:focus {
+    border-color: var(--navy-light);
+    box-shadow: 0 0 0 3px rgba(44, 64, 102, 0.12);
+    outline: none;
+  }
+
+  .route-select:disabled {
+    background: #f1f3f6;
+    color: var(--text-sub);
+    cursor: not-allowed;
+  }
+
+  .route-swap-btn {
+    display: block;
+    width: 100%;
+    height: 40px;
+    margin: 4px 0 16px;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: var(--navy);
+    background: #eef1f6;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .route-swap-btn:hover {
+    background: #e5eaf3;
+  }
+
+  .route-modal-footer {
+    padding: 0 16px 16px;
+  }
+
+  .route-directions-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+    height: 44px;
+    line-height: 44px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--navy-light);
+    border-radius: 4px;
+    text-decoration: none;
+  }
+
+  .route-directions-btn:hover {
+    background: var(--navy);
+  }
+
+  .route-directions-btn.disabled {
+    background: #b7bfcc;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  footer {
+    background: var(--navy);
+    color: #9aa5bd;
+    font-size: 11px;
+    text-align: center;
+    padding: 6px 0;
+    flex-shrink: 0;
+  }
+
+  .footer-mobile {
+    display: none;
+  }
+
+  /* =========================================================
+     RWD — 響應式設計
+     以下為新增的媒體查詢（media query），僅調整版面配置與尺寸，
+     不影響、不覆寫桌機版既有樣式與任何 JavaScript 功能。
+  ========================================================= */
+
+  /* ================= 平板 (Tablet, ≤1024px)：維持左右配置，側欄略縮小 ================= */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    #sidebar {
+      width: 250px;
+    }
+
+    #sidebar-tabs button {
+      font-size: 12px;
+      padding: 9px 3px;
+    }
+
+    #accommodation-list .item-name {
+      font-size: 13.5px;
+    }
+
+    #accommodation-list .item-address {
+      font-size: 11.5px;
+    }
+  }
+
+  /* ================= 手機 (Mobile, ≤768px)：改為上下排列 ================= */
+  @media (max-width: 768px) {
+    html, body {
+      overflow-x: hidden; /* 避免左右滑動 */
+    }
+
+    header {
+      display: block;
+      padding: 11px 14px;
+    }
+
+    header h1 {
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    header .subtitle {
+      margin-top: 3px;
+      font-size: 10.5px;
+      line-height: 1.3;
+      white-space: normal;
+    }
+
+    /* 手機版只顯示精簡英文副標，隱藏桌機版完整副標 */
+    .subtitle-desktop {
+      display: none;
+    }
+
+    .subtitle-mobile {
+      display: block;
+    }
+
+    /* 手機版：單位資訊移至標題下方，靠右對齊，加上分隔線，不壓縮主標題、不造成左右滑動 */
+    header .org-info {
+      width: 100%;
+      margin-top: 6px;
+      margin-left: 0;
+      padding-top: 6px;
+      text-align: right;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    header .org-tag {
+      font-size: 10px;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    header .internal-use {
+      margin-top: 1px;
+      font-size: 9px;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    .internal-use-desktop {
+      display: none;
+    }
+
+    .internal-use-mobile {
+      display: block;
+    }
+
+    /* #app 改為自然頁面高度，讓整體內容（含清單）可以自然向下捲動，
+       不使用固定 100vh + 內部裁切的方式，避免清單被裁掉 */
+    #app {
+      height: auto;
+      min-height: 100vh;
+    }
+
+    /* main 改為垂直排列；不裁切、不限制高度，交由瀏覽器自然捲動整個頁面 */
+    main {
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    /* #sidebar 本身不再產生版面容器，讓內部元素（分頁 / 標題 / 清單）
+       各自成為 main 的排版項目，方可用 order 重新排列順序，
+       DOM 結構與既有 JavaScript 完全不變 */
+    #sidebar {
+      display: contents;
+    }
+
+    /* 排列順序：標題(header,已在 main 之外) → 分頁 → 清單標題 → 清單 → 地圖(含圖層控制) */
+    #sidebar-tabs {
+      order: 1;
+      flex-shrink: 0;
+    }
+
+    /* 五個頁籤在手機版（320～390px）維持同一排、等寬顯示，避免文字擠壓或水平捲動 */
+    #sidebar-tabs button {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 8px 2px;
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 分頁按鈕加上筆數標籤，僅在手機版顯示，不影響桌機版文字；
+       筆數改為區塊顯示在頁籤名稱下方，避免與名稱擠在同一行造成重疊 */
+    #sidebar-tabs button .tab-count {
+      display: block;
+      margin-left: 0;
+      margin-top: 1px;
+      font-size: 10px;
+      color: var(--text-sub);
+      line-height: 1.2;
+    }
+
+    #sidebar-tabs button.active .tab-count {
+      color: var(--navy-light);
+    }
+
+    .sidebar-header {
+      order: 2;
+      flex-shrink: 0;
+    }
+
+    /* 搜尋框：位於清單標題下方、資料清單上方 */
+    #search-container {
+      order: 3;
+      flex-shrink: 0;
+      padding: 10px 14px;
+    }
+
+    #search-container input#list-search {
+      height: 40px;
+      font-size: 14px;
+    }
+
+    /* 資訊清單為手機版主要操作區域（清單優先）：不設定固定高度、不裁切，
+       內容隨頁面自然向下捲動，預設即完整顯示（不收合） */
+    #accommodation-list {
+      order: 4;
+      flex: none;
+      overflow: visible;
+    }
+
+    /* 地圖放在清單下方，高度約畫面 48%，並設定合理的最小／最大高度 */
+    #map {
+      order: 5;
+      flex: none;
+      width: 100%;
+      height: 48vh;
+      min-height: 340px;
+      max-height: 500px;
+      scroll-margin-top: 10px; /* scrollIntoView 捲動時保留少許間距，不完全貼齊畫面頂端 */
+    }
+
+    /* 資訊卡（手機版）尺寸略縮小，讓同一畫面可看到標題＋2～3筆資料 */
+    #accommodation-list li {
+      padding: 12px 16px;
+    }
+
+    #accommodation-list .item-name {
+      font-size: 14px;
+    }
+
+    #accommodation-list .item-sport {
+      font-size: 12px;
+      padding: 3px 10px;
+    }
+
+    #accommodation-list .item-address {
+      font-size: 12px;
+    }
+
+    /* 圖層開關控制面板：加大觸控區域 */
+    .layer-control {
+      padding: 8px 10px;
+      font-size: 13px;
+      min-width: 112px;
+    }
+
+    .layer-control .layer-control-title {
+      font-size: 12.5px;
+    }
+
+    .layer-control label {
+      padding: 7px 0;
+    }
+
+    .layer-control input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Popup：加大字體、限制寬度避免超出畫面造成左右滑動 */
+    .leaflet-popup-content-wrapper {
+      max-width: 78vw;
+    }
+
+    .popup-content .popup-title {
+      font-size: 16px;
+    }
+
+    .popup-content table {
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    .popup-content table td.label {
+      padding-right: 8px;
+    }
+
+    .popup-content .popup-gmap-link {
+      font-size: 13.5px;
+      padding: 7px 14px;
+    }
+
+    .footer-desktop {
+      display: none;
+    }
+
+    .footer-mobile {
+      display: block;
+    }
+
+    footer {
+      padding: 8px 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .footer-mobile > div + div {
+      margin-top: 2px;
+    }
+
+    .footer-source {
+      font-size: 9px;
+    }
+
+    .footer-updated,
+    .footer-maintainer {
+      font-size: 10px;
+    }
+
+    /* ===================== 路線查詢 Modal（手機版微調） ===================== */
+    .route-modal-overlay {
+      padding: 14px; /* Modal 與畫面左右至少保留約 14px */
+    }
+
+    .route-modal {
+      width: 100%;
+      max-width: 360px;
+      max-height: 85vh; /* 必要時 Modal 本身垂直捲動 */
+    }
+
+    .route-modal-body {
+      padding: 14px;
+    }
+
+    /* 兩個 select 高度加到 44px、字級調整為 16px，避免 iPhone Safari 點擊時自動放大頁面 */
+    .route-select {
+      height: 44px;
+      font-size: 16px;
+    }
+
+    .route-origin-label {
+      font-size: 15px;
+    }
+
+    /* 「交換起終點」與「Google Maps 查看路線」按鈕加大觸控高度，並保持間距不擠在一起 */
+    .route-swap-btn {
+      height: 44px;
+      margin: 4px 0 18px;
+    }
+
+    .route-modal-footer {
+      padding: 4px 14px 14px;
+    }
+
+    .route-directions-btn {
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div>
+      <h1>2026名古屋亞帕運中華台北代表團據點查詢系統</h1>
+      <div class="subtitle subtitle-desktop">Chinese Taipei Team Hub<br>Aichi-Nagoya 2026 Asian Para Games</div>
+      <div class="subtitle subtitle-mobile">Aichi-Nagoya 2026 Asian Para Games</div>
+    </div>
+    <div class="org-info">
+      <div class="org-tag">國家運動訓練中心｜競技運動處</div>
+      <div class="internal-use internal-use-desktop">此資料為內部參考使用</div>
+      <div class="internal-use internal-use-mobile">資料僅供內部作業使用</div>
+    </div>
+  </header>
+
+  <main>
+    <aside id="sidebar">
+      <div id="sidebar-tabs">
+        <button type="button" data-tab="relay">中繼站<span class="tab-count"></span></button>
+        <button type="button" data-tab="venue">比賽場館<span class="tab-count"></span></button>
+        <button type="button" data-tab="training">練習場館<span class="tab-count"></span></button>
+        <button type="button" data-tab="accommodation" class="active">住宿地點<span class="tab-count"></span></button>
+      </div>
+      <div class="sidebar-header">
+        <span id="list-title">住宿地點清單</span> <span class="count" id="list-count"></span>
+      </div>
+      <div id="search-container">
+        <input
+          type="search"
+          id="list-search"
+          placeholder="搜尋名稱、項目、地址或備註"
+          autocomplete="off"
+        >
+      </div>
+      <ul id="accommodation-list"></ul>
+    </aside>
+
+    <div id="map"></div>
+  </main>
+
+  <footer>
+    <div class="footer-desktop">
+      資料更新：<span id="footer-updated-desktop"></span>｜資料僅供內部作業參考使用，正式資料請以主辦單位公告為準｜建置與維護：國家運動訓練中心競技運動處
+    </div>
+    <div class="footer-mobile">
+      <div class="footer-source">
+        資料來源：2026名古屋亞帕運相關資料，最新資訊請以官方公告為準
+      </div>
+      <div class="footer-updated">
+        資料更新：<span id="last-updated-mobile"></span>
+      </div>
+      <div class="footer-maintainer">
+        建置與維護：國家運動訓練中心競技運動處
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- 路線查詢 Modal（點到點路線查詢功能，僅產生 Google Maps 連結，不使用目前位置/GPS） -->
+<div id="route-modal-overlay" class="route-modal-overlay">
+  <div class="route-modal" role="dialog" aria-modal="true" aria-labelledby="route-modal-title">
+    <div class="route-modal-header">
+      <span id="route-modal-title">路線查詢</span>
+      <button type="button" class="route-modal-close" onclick="closeRouteModal()" aria-label="關閉">✕</button>
+    </div>
+    <div class="route-modal-body">
+      <div class="route-field">
+        <label>起點</label>
+        <div id="route-origin-label" class="route-origin-label"></div>
+      </div>
+      <button type="button" class="route-swap-btn" onclick="swapRouteEndpoints()">⇄ 交換起終點</button>
+      <div class="route-field">
+        <label for="route-category-select">目的地分類</label>
+        <select id="route-category-select" class="route-select" onchange="onRouteCategoryChange()">
+          <option value="">請選擇分類</option>
+          <option value="relay">中繼站</option>
+          <option value="accommodation">住宿地點</option>
+          <option value="venue">比賽場館</option>
+          <option value="training">練習場館</option>
+        </select>
+      </div>
+      <div class="route-field">
+        <label for="route-destination-select">目的地</label>
+        <select id="route-destination-select" class="route-select" onchange="onRouteDestinationChange()" disabled>
+          <option value="">請先選擇分類</option>
+        </select>
+      </div>
+    </div>
+    <div class="route-modal-footer">
+      <a id="route-directions-link" class="route-directions-btn disabled" href="#" target="_blank" rel="noopener noreferrer">Google Maps 查看路線 ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* ========================= 資料更新日期 ========================= */
+// 唯一日期來源：頁尾文字皆由此變數動態帶入，不在多處重複手動輸入日期
+const lastUpdated = "2026年9月7日";
+
+const desktopUpdatedEl = document.getElementById('footer-updated-desktop');
+if (desktopUpdatedEl) {
+  desktopUpdatedEl.textContent = lastUpdated;
+}
+
+const mobileUpdatedEl = document.getElementById('last-updated-mobile');
+if (mobileUpdatedEl) {
+  mobileUpdatedEl.textContent = lastUpdated;
+}
+
+/* =========================================================
+   中繼站資料陣列
+
+   欄位說明：
+   id            : 唯一識別碼（請勿重複）
+   stationName   : 中繼站名稱
+   address       : 中繼站地址
+   lat, lng      : 座標（必填）
+   googleMapUrl  : Google Maps 短網址（僅保留於資料庫作為人工備查用途，不參與導航邏輯）
+   placeId       : Google Place ID（供 buildGoogleMapsUrl() 優先使用）
+   googlePlaceName : Google Maps 上的正式地點名稱（僅供 buildGoogleMapsUrl() 產生連結使用，
+                    不會取代網站畫面上的中文名稱；留空時自動退回使用網站顯示名稱）
+   note          : 備註
+========================================================= */
+const relayStations = [
+  {
+    id: 1,
+    stationName: "名古屋中繼站",
+    address: "愛知県名古屋市中区錦一丁目9-1",
+    lat: 35.1705337797112,
+    lng: 136.895721486769,
+    googleMapUrl: "https://maps.app.goo.gl/gcjMwriKTFMBdDuP6",
+    placeId: "ChIJbfleqdd2A2ARWzaSgsdyqwI",
+    googlePlaceName: "1-chōme-9-1 Nishiki",
+    note: "御園小學校"
+  },
+];
+
+/* =========================================================
+   比賽場館資料陣列
+
+   欄位說明：
+   id            : 唯一識別碼（請勿重複）
+   venueName     : 場館名稱
+   address       : 場館地址
+   lat, lng      : 座標（必填）
+   googleMapUrl  : Google Maps 短網址（僅供人工備查，不參與導航邏輯）
+   placeId       : Google Place ID（供 buildGoogleMapsUrl() 優先使用）
+   googlePlaceName : Google Maps 上的正式地點名稱（僅供 buildGoogleMapsUrl() 產生連結使用，
+                    不會取代網站畫面上的中文名稱；留空時自動退回使用網站顯示名稱）
+   sports        : 比賽運動項目，陣列格式，例如 ["羽球"]
+   note          : 備註
+========================================================= */
+const venues = [
+  {
+    id: 1,
+    venueName: "Okazaki Chuo Sogo Park Multipurpose Square",
+    address: "日本〒444-0002 Aichi, Okazaki, Koryujicho, Toge 1番地",
+    lat: 34.9471072596199,
+    lng: 137.208954781197,
+    googleMapUrl: "https://maps.app.goo.gl/tfy9BqGffLymNBzn7",
+    placeId: "ChIJzfrGMIe8BGARUKOOECfBhZM",
+    googlePlaceName: "Okazaki Central Park Multipurpose Plaza",
+    sports: ["射箭"],
+    note: ""
+  },
+  {
+    id: 2,
+    venueName: "Nagoya City Mizuho Park Athletic Stadium",
+    address: "5 Chome-1 Yamashitatori, Mizuho Ward, Nagoya, Aichi 467-0062日本",
+    lat: 35.1231040548465,
+    lng: 136.944331511184,
+    googleMapUrl: "https://maps.app.goo.gl/CiP7LzDQMd3qdwk58",
+    placeId: "ChIJ9-4gCAB7A2ARBggPhLymVhs",
+    googlePlaceName: "Paloma Mizuho Stadium",
+    sports: ["田徑"],
+    note: ""
+  },
+  {
+    id: 3,
+    venueName: "Ichinomiya City Municipal Gymnasium",
+    address: "日本〒491-0135 Aichi, Ichinomiya, Komyoji, 白山前20",
+    lat: 35.359766763788,
+    lng: 136.803220933867,
+    googleMapUrl: "https://maps.app.goo.gl/GJ4rKTCfJ7jjFnZM8",
+    placeId: "ChIJ2eYTqL2nA2AR5UOYirBIo4E",
+    googlePlaceName: "一宮市総合体育館",
+    sports: ["羽球"],
+    note: ""
+  },
+  {
+    id: 4,
+    venueName: "Nagoya City General Gymnasium [Rainbow Hall]",
+    address: "5 Chome-1-16 Higashimatabeecho, Minami Ward, Nagoya, Aichi 457-0833日本",
+    lat: 35.0985869373413,
+    lng: 136.923675099653,
+    googleMapUrl: "https://maps.app.goo.gl/zBM33BGSNN5Lc5Pa6",
+    placeId: "ChIJXSQQI797A2ARTB2rtM6MJ_I",
+    googlePlaceName: "Kurokokun hall",
+    sports: ["地板滾球"],
+    note: ""
+  },
+  {
+    id: 5,
+    venueName: "Aichi Prefectural Martial Arts Hall",
+    address: "日本〒455-0078 Aichi, Nagoya, Minato Ward, Maruikecho, 1 Chome−１−4",
+    lat: 35.1176444179729,
+    lng: 136.869846962459,
+    googleMapUrl: "https://maps.app.goo.gl/bqHJ16JV7jGSZ8Pe9",
+    placeId: "ChIJHSmAttZ5A2ARGIJTy0az08Q",
+    googlePlaceName: "愛知県武道館",
+    sports: ["柔道"],
+    note: ""
+  },
+  {
+    id: 6,
+    venueName: "Nagoya City Trade and Industry Center",
+    address: "2 Chome-6-3 Fukiage, Chikusa Ward, Nagoya, Aichi 464-0856日本",
+    lat: 35.1582743394541,
+    lng: 136.92972902827,
+    googleMapUrl: "https://maps.app.goo.gl/jkQa8tkfaXxiUTMq7",
+    placeId: "ChIJ2dZfWpBwA2AR0L31wmznNo4",
+    googlePlaceName: "名古屋中小企業振興会",
+    sports: ["健力"],
+    note: ""
+  },
+  {
+    id: 7,
+    venueName: "Aichi Prefectural General Shooting Gallery",
+    address: "Unebata-12-95 Urenocho, Toyota, Aichi 444-3203日本",
+    lat: 35.0564175318128,
+    lng: 137.425877406503,
+    googleMapUrl: "https://maps.app.goo.gl/HEDGoPn3YJSLHayTA",
+    placeId: "ChIJn-CFEuuyBGARQUQKA6pzfs8",
+    googlePlaceName: "愛知県総合射撃場",
+    sports: ["射擊"],
+    note: ""
+  },
+  {
+    id: 8,
+    venueName: "Okazaki Chuo Sogo Park Gymnasium",
+    address: "愛知県岡崎市高隆寺町字峠1番地",
+    lat: 34.9474933912651,
+    lng: 137.212114096213,
+    googleMapUrl: "https://maps.app.goo.gl/LQvHqQhKd1KTY2UZA",
+    placeId: "ChIJibIVe4C8BGARddoDrez3GPc",
+    googlePlaceName: "Okazaki Central Park General Gymnasium",
+    sports: ["坐地排球"],
+    note: ""
+  },
+  {
+    id: 9,
+    venueName: "Nagoya City General Gymnasium [Rainbow Pool]",
+    address: "5 Chome-1-16 Higashimatabeecho, Minami Ward, Nagoya, Aichi 457-0833日本",
+    lat: 35.0960563460898,
+    lng: 136.923701758738,
+    googleMapUrl: "https://maps.app.goo.gl/huRTmpDmHBUhqmUN9",
+    placeId: "ChIJXSQQI797A2ARTB2rtM6MJ_I",
+    googlePlaceName: "Kurokokun hall",
+    sports: ["游泳"],
+    note: ""
+  },
+  {
+    id: 10,
+    venueName: "SKY HALL TOYOTA",
+    address: "日本〒471-0861 Aichi, Toyota, Hachimancho, 1 Chome−２０−20 豊田市総合体育館",
+    lat: 35.0814767456224,
+    lng: 137.163242333966,
+    googleMapUrl: "https://maps.app.goo.gl/dFJCm5D5SeLX9f2z6",
+    placeId: "ChIJG1DyEUWgBGARsZxk_s2K3Y4",
+    googlePlaceName: "SKY HALL TOYOTA",
+    sports: ["桌球"],
+    note: ""
+  },
+  {
+    id: 11,
+    venueName: "Nagoya City Mizuho Park Gymnasium",
+    address: "3 Chome-4 Tanabetori, Mizuho Ward, Nagoya, Aichi 467-0027日本",
+    lat: 35.1284539206483,
+    lng: 136.945853832076,
+    googleMapUrl: "https://maps.app.goo.gl/sfjQaYhWaPXQo6JFA",
+    placeId: "ChIJRwUCDtZ7A2ARI-Dg_6qKvXY",
+    googlePlaceName: "Paloma Mizuho Arena",
+    sports: ["跆拳道"],
+    note: ""
+  },
+  {
+    id: 12,
+    venueName: "Nagoya City Inae Sports Center",
+    address: "5 Chome-1-10 Noseki, Minato Ward, Nagoya, Aichi 455-0845日本",
+    lat: 35.0799725719546,
+    lng: 136.849318844259,
+    googleMapUrl: "https://maps.app.goo.gl/tKBBtW9NwkEXREts5",
+    placeId: "ChIJq6pqy154A2ARBVWNsNoRIWE",
+    googlePlaceName: "Inae Sports Center",
+    sports: ["輪椅擊劍"],
+    note: ""
+  },
+  {
+    id: 13,
+    venueName: "Nagoya City Higashiyama Park Tennis Center",
+    address: "Urayama-60-19 Tenpakucho Oaza Yagoto, Tempaku Ward, Nagoya, Aichi 468-0071日本",
+    lat: 35.1479180895597,
+    lng: 136.973408718045,
+    googleMapUrl: "https://maps.app.goo.gl/ntvgNQNzaeThCFXU9",
+    placeId: "ChIJbdqN5Mt6A2ARpx01XCI9KDw",
+    googlePlaceName: "Higashiyama Koen Tennis Center",
+    sports: ["輪椅網球"],
+    note: ""
+  },
+];
+
+/* =========================================================
+   練習場館資料陣列
+
+   欄位說明：
+   id            : 唯一識別碼（請勿重複）
+   venueName     : 場館名稱
+   address       : 場館地址
+   lat, lng      : 座標（必填）
+   googleMapUrl  : Google Maps 短網址（僅供人工備查，不參與導航邏輯）
+   placeId       : Google Place ID（供 buildGoogleMapsUrl() 優先使用）
+   googlePlaceName : Google Maps 上的正式地點名稱（僅供 buildGoogleMapsUrl() 產生連結使用，
+                    不會取代網站畫面上的中文名稱；留空時自動退回使用網站顯示名稱）
+   sports        : 練習運動項目，陣列格式，例如 ["田徑"]
+   note          : 備註
+========================================================= */
+const trainingVenues = [
+];
+
+/* =========================================================
+   住宿地點資料陣列
+
+   欄位說明：
+   id            : 唯一識別碼（請勿重複）
+   hotelName     : 住宿名稱
+   address       : 住宿地址
+   lat, lng      : 座標（必填）
+   googleMapUrl  : Google Maps 短網址（僅供人工備查，不參與導航邏輯）
+   placeId       : Google Place ID（供 buildGoogleMapsUrl() 優先使用）
+   googlePlaceName : Google Maps 上的正式地點名稱（僅供 buildGoogleMapsUrl() 產生連結使用，
+                    不會取代網站畫面上的中文名稱；留空時自動退回使用網站顯示名稱）
+   teams         : 入住代表隊運動種類，請用陣列格式，例如 ["羽球", "桌球"]
+   note          : 備註
+========================================================= */
+const accommodations = [
+  {
+    id: 1,
+    hotelName: "Henn na Hotel Laguna Ten Bosch",
+    address: "1 Chome-4-1 Kaiyocho, Gamagori, Aichi 443-0014日本",
+    lat: 34.8072740822147,
+    lng: 137.268446011588,
+    googleMapUrl: "https://maps.app.goo.gl/88QR91D6uh3SP4mN9",
+    placeId: "ChIJQ6bhjWnGBGARKyNwl8s1jB4",
+    googlePlaceName: "Henn na Hotel Laguna Ten Bosch",
+    teams: ["射箭"],
+    note: ""
+  },
+  {
+    id: 2,
+    hotelName: "Nagoya Marriott Associa Hotel",
+    address: "1 Chome-1-4 Meieki, Nakamura Ward, Nagoya, Aichi 450-6002日本",
+    lat: 35.1710602465558,
+    lng: 136.883334894427,
+    googleMapUrl: "https://maps.app.goo.gl/A9Fg14t5JPpEgbh19",
+    placeId: "ChIJj4YYGadwA2AR8xFDqUlgjog",
+    googlePlaceName: "名古屋萬豪Associa酒店",
+    teams: ["田徑"],
+    note: ""
+  },
+  {
+    id: 3,
+    hotelName: "Nagoya Prince Hotel Sky Tower",
+    address: "4 Chome-60番地12 Hiraikecho, Nakamura Ward, Nagoya, Aichi 453-0872日本",
+    lat: 35.1623858060494,
+    lng: 136.883040826517,
+    googleMapUrl: "https://maps.app.goo.gl/td78nB7Hsbm5NnkY9",
+    placeId: "ChIJVTYnjR93A2ARZBiQNfuaCJU",
+    googlePlaceName: "名古屋王子大飯店天空塔",
+    teams: ["田徑"],
+    note: ""
+  },
+  {
+    id: 4,
+    hotelName: "Hotel JAL City Nagoya Nishiki",
+    address: "1 Chome-16-36 Nishiki, Naka Ward, Nagoya, Aichi 460-0003日本",
+    lat: 35.1689036406715,
+    lng: 136.893248442919,
+    googleMapUrl: "https://maps.app.goo.gl/7en5m2WTxcXDjdhR7",
+    placeId: "ChIJvciGf_Z3A2ARmTwlvtzln9E",
+    googlePlaceName: "名古屋錦日航都市酒店",
+    teams: ["田徑"],
+    note: ""
+  },
+  {
+    id: 5,
+    hotelName: "ANA Crowne Plaza Hotel Grand Court Nagoya",
+    address: "1 Chome-1-1 Kanayamacho, 名古屋市中区 Aichi 460-0023日本",
+    lat: 35.1427828839204,
+    lng: 136.899934056066,
+    googleMapUrl: "https://maps.app.goo.gl/Ekmm67Gjs2bbbYcr5",
+    placeId: "ChIJK6iqQlJ3A2ARQfVkGj06ljk",
+    googlePlaceName: "名古屋格蘭庭院全日空皇冠假日酒店",
+    teams: ["田徑", "地板滾球"],
+    note: ""
+  },
+  {
+    id: 6,
+    hotelName: "Miyako Hotel Gifu Nagaragawa",
+    address: "2695-2 Nagarafukumitsu, Gifu, 502-0817日本",
+    lat: 35.4406964954928,
+    lng: 136.768262348928,
+    googleMapUrl: "https://maps.app.goo.gl/kk7Eo6LVqP5k98obA",
+    placeId: "ChIJFTQ67d2rA2ARuPdxCrecd68",
+    googlePlaceName: "岐阜長良川都酒店",
+    teams: ["羽球"],
+    note: ""
+  },
+  {
+    id: 7,
+    hotelName: "Gifu Grand Hotel",
+    address: "648 Nagara, Gifu, 502-0071日本",
+    lat: 35.4417606947902,
+    lng: 136.78453236132,
+    googleMapUrl: "https://maps.app.goo.gl/yYCqFWCThdzStEQ37",
+    placeId: "ChIJp1KVJ36pA2ARz13TjqYBjzQ",
+    googlePlaceName: "Gifu Grand Hotel",
+    teams: ["羽球"],
+    note: ""
+  },
+  {
+    id: 8,
+    hotelName: "TIAD, Autograph Collection",
+    address: "5 Chome-15-19 Sakae, Naka Ward, Nagoya, Aichi 460-0008日本",
+    lat: 35.1639509561977,
+    lng: 136.910212232992,
+    googleMapUrl: "https://maps.app.goo.gl/6LfTisqF3orydkas9",
+    placeId: "ChIJO_zJmPVxA2AR7KyOgNsgs4o",
+    googlePlaceName: "名古屋TIAD傲途格精選酒店",
+    teams: ["地板滾球", "輪椅網球"],
+    note: ""
+  },
+  {
+    id: 9,
+    hotelName: "Nagoya Tokyu Hotel",
+    address: "4 Chome-6-8 Sakae, Naka Ward, Nagoya, Aichi 460-0008日本",
+    lat: 35.1686563550612,
+    lng: 136.914329541323,
+    googleMapUrl: "https://maps.app.goo.gl/7ZkUKdKirBKjF4du6",
+    placeId: "ChIJI7rLudpwA2ARrwmYTI1Wm2w",
+    googlePlaceName: "名古屋東急飯店",
+    teams: ["柔道"],
+    note: ""
+  },
+  {
+    id: 10,
+    hotelName: "Hotel Mielparque Nagoya",
+    address: "3 Chome-16-16 Aoi, Higashi Ward, Nagoya, Aichi 461-0004日本",
+    lat: 35.171418801627,
+    lng: 136.929586285253,
+    googleMapUrl: "https://maps.app.goo.gl/qCgZCWSbjyw4g5FW9",
+    placeId: "ChIJeddf7O5wA2ARd3m_K958jMg",
+    googlePlaceName: "Mielparque Nagoya",
+    teams: ["健力"],
+    note: ""
+  },
+  {
+    id: 11,
+    hotelName: "Hotel Toyota Castle",
+    address: "2 Chome-160 Kitamachi, Toyota, Aichi 471-0027日本",
+    lat: 35.0866057198969,
+    lng: 137.159385802596,
+    googleMapUrl: "https://maps.app.goo.gl/x1RrmM35oA5Cjxoc9",
+    placeId: "ChIJe2qRgGqgBGARUWw0KBtX2xY",
+    googlePlaceName: "Hotel Toyota Castle",
+    teams: ["射擊"],
+    note: ""
+  },
+  {
+    id: 12,
+    hotelName: "Centrair Hotel",
+    address: "中部国際空港駅, 3F, 1 Chome-１-1 Centrair, Tokoname, Aichi 479-0881日本",
+    lat: 34.8585088359726,
+    lng: 136.81668260339,
+    googleMapUrl: "https://maps.app.goo.gl/vSt81nntHUJtu8to6",
+    placeId: "ChIJ2QpdOOx9BGARiLDRW9CH_sg",
+    googlePlaceName: "中部國際機場 新特麗亞飯店",
+    teams: ["游泳"],
+    note: ""
+  },
+  {
+    id: 13,
+    hotelName: "Four Points by Sheraton Nagoya, Chubu International Airport",
+    address: "4 Chome-10-5 Centrair, Tokoname, Aichi 479-0881日本",
+    lat: 34.8616515208288,
+    lng: 136.820633236251,
+    googleMapUrl: "https://maps.app.goo.gl/qRzoJXq111MXwagUA",
+    placeId: "ChIJC-hcBSR9BGARN8yck3BB1qc",
+    googlePlaceName: "名古屋中部國際機場福朋喜來登酒店",
+    teams: ["游泳"],
+    note: ""
+  },
+  {
+    id: 14,
+    hotelName: "",
+    address: "",
+    lat: null,
+    lng: null,
+    googleMapUrl: "",
+    placeId: "",
+    googlePlaceName: "",
+    teams: ["桌球"],
+    note: ""
+  },
+  {
+    id: 15,
+    hotelName: "Green Rich Hotel Nagoya Nishiki",
+    address: "2 Chome-7-4 Nishiki, Naka Ward, Nagoya, Aichi 460-0003日本",
+    lat: 35.1722063629173,
+    lng: 136.899155236795,
+    googleMapUrl: "https://maps.app.goo.gl/rgaX2FVqep2gfBWBA",
+    placeId: "ChIJSTG--S53A2ARcpxQlt3EzI4",
+    googlePlaceName: "Green Rich Hotel Nagoya Nishiki",
+    teams: ["跆拳道"],
+    note: ""
+  },
+  {
+    id: 16,
+    hotelName: "Athletes' Plaza",
+    address: "1 Minatomachi, Minato Ward, Nagoya, Aichi 455-0033日本",
+    lat: 35.0921076552727,
+    lng: 136.88231416981,
+    googleMapUrl: "https://maps.app.goo.gl/b1afsXzkn2UyrVZR7",
+    placeId: "ChIJ6SpyXaB5A2ARtkP_PZ1ohiE",
+    googlePlaceName: "名古屋掖済会病院付属埠頭診療所",
+    teams: ["輪椅擊劍"],
+    note: ""
+  },
+];
+
+/* ========================= 地圖初始化 ========================= */
+const map = L.map('map', {
+  zoomControl: true
+}).setView([35.1815, 136.9066], 12); // 預設中心點：名古屋
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+/* ========================= 圖層群組（中繼站 / 比賽場館 / 練習場館 / 住宿地點） ========================= */
+const relayLayer = L.layerGroup();       // 預設關閉
+const venueLayer = L.layerGroup();       // 預設關閉
+const trainingVenueLayer = L.layerGroup(); // 預設關閉
+const accommodationLayer = L.layerGroup().addTo(map); // 預設開啟
+
+/* ========================= Marker 樣式（依圖層區分顏色） ========================= */
+function createDivIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width: 18px;
+      height: 18px;
+      border-radius: 50% 50% 50% 0;
+      background: ${color};
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      transform: rotate(-45deg);
+    "></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 18],
+    popupAnchor: [0, -18]
+  });
+}
+
+const accommodationIcon = createDivIcon('#2c4066'); // 深藍 —— 住宿地點
+const venueIcon = createDivIcon('#c0392b');          // 紅色 —— 比賽場館
+const relayIcon = createDivIcon('#1f9d55');          // 綠色 —— 中繼站
+const trainingVenueIcon = createDivIcon('#d9a400');  // 金黃色 —— 練習場館
+
+// 儲存 marker 以便從清單點擊時開啟對應 popup（依圖層分別建立）
+const accommodationMarkerMap = {};
+const venueMarkerMap = {};
+const relayMarkerMap = {};
+const trainingVenueMarkerMap = {};
+
+// 共用小工具：避免空白資料顯示空白欄位或空白按鈕，且不自行推測內容
+function popupRow(label, value) {
+  if (!value) return '';
+  return `<tr><td class="label">${label}</td><td>${value}</td></tr>`;
+}
+
+// ===== Google Maps 連結產生邏輯：集中於此單一函式管理 =====
+// 未來若 Google Maps 連結規則變更，只需修改這個函式即可，
+// 不需要修改任何 Popup 或五個資料陣列。
+//
+// 取得網站畫面上顯示用的名稱（不含 googlePlaceName，僅供 Google Maps 查無正式名稱時的備援）
+function getDisplayName(item) {
+  return (
+    item.hotelName ||
+    item.venueName ||
+    item.stationName ||
+    ''
+  );
+}
+
+// 產生 Google Maps 連結（Search URL）：只開啟指定地點頁面，不進入導航／路線規劃，
+// 不帶 origin、destination、travelmode 或目前位置；
+// 使用者可在開啟地點頁後，自行點擊「路線」進行導航。
+//
+// 優先順序：
+// ① placeId 存在 → query 優先使用 googlePlaceName（Google Maps 正式名稱，不含地址）；
+//    若 googlePlaceName 空白，才退回使用網站顯示名稱或地址；query_place_id 使用 Place ID
+// ② 無 placeId → query 使用「(googlePlaceName 或網站顯示名稱) ＋ 地址」
+// ③ ①②皆無法組成 query → 才退回使用 lat,lng 作為 query
+// ④ 皆不存在 → 回傳空字串（不顯示 Google Maps 按鈕）
+//
+// 注意：item.googleMapUrl 僅保留於資料陣列作為人工備查用途，
+// 完全不參與這裡的網站導航邏輯。
+function buildGoogleMapsUrl(item) {
+  const googleName = (item.googlePlaceName || '').trim();
+  const displayName = getDisplayName(item);
+  const address = (item.address || '').trim();
+
+  if (item.placeId) {
+    const query = googleName || displayName || address;
+
+    return (
+      'https://www.google.com/maps/search/?api=1' +
+      `&query=${encodeURIComponent(query)}` +
+      `&query_place_id=${encodeURIComponent(item.placeId.trim())}`
+    );
+  }
+
+  const fallbackQuery = [googleName || displayName, address]
+    .filter(Boolean)
+    .join(' ');
+
+  if (fallbackQuery) {
+    return (
+      'https://www.google.com/maps/search/?api=1' +
+      `&query=${encodeURIComponent(fallbackQuery)}`
+    );
+  }
+
+  const lat = Number(item.lat);
+  const lng = Number(item.lng);
+
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return (
+      'https://www.google.com/maps/search/?api=1' +
+      `&query=${encodeURIComponent(`${lat},${lng}`)}`
+    );
+  }
+
+  return '';
+}
+
+function gmapLinkHtml(url) {
+  if (!url) return '';
+  return `<a class="popup-gmap-link" href="${url}" target="_blank" rel="noopener noreferrer">在 Google Maps 查看 ↗</a>`;
+}
+
+function tagHtml(text, extraClass = '') {
+  if (!text) return '';
+  return `<div class="item-sport ${extraClass}">${text}</div>`;
+}
+
+/* =========================================================
+   點到點路線查詢功能（獨立於單點 Google Maps 查看邏輯）
+
+   - routeLocationRegistry：彙整五個資料陣列的所有據點，供路線查詢 Modal 的
+     起點／目的地查找使用，不建立新的地點資料庫，僅重複利用既有五個陣列。
+   - buildGoogleMapsDirectionsUrl()：與 buildGoogleMapsUrl() 完全分開，
+     互不影響；只產生 Google Maps 路線（Directions）URL，不使用目前位置/GPS。
+========================================================= */
+const routeLocationRegistry = {};
+
+function registerRouteLocation(cat, item) {
+  routeLocationRegistry[`${cat}:${item.id}`] = { cat, item };
+}
+
+// Popup 內「路線查詢」按鈕：點擊後以該據點作為起點開啟路線查詢 Modal
+function routeButtonHtml(cat, item) {
+  return `<button type="button" class="popup-route-btn" onclick="openRouteModal('${cat}', ${item.id})">路線查詢</button>`;
+}
+
+function buildPopupContent(item) {
+  const teamsText = (item.teams && item.teams.length) ? item.teams.join('、') : '';
+  return `
+    <div class="popup-content">
+      <div class="popup-title">${item.hotelName}</div>
+      <table>
+        ${popupRow('地址', item.address)}
+        ${popupRow('入住代表隊', teamsText)}
+        ${popupRow('備註', item.note)}
+      </table>
+      <div class="popup-actions">
+        ${gmapLinkHtml(buildGoogleMapsUrl(item))}
+        ${routeButtonHtml('accommodation', item)}
+      </div>
+    </div>
+  `;
+}
+
+accommodations.forEach(item => {
+  // 資料若尚未提供座標（lat／lng 空白待補），不建立地圖 Marker，避免 Leaflet 因無效座標報錯；
+  // 該筆資料仍會出現在清單、搜尋及路線查詢目的地下拉選單中。
+  if (typeof item.lat === 'number' && typeof item.lng === 'number') {
+    const marker = L.marker([item.lat, item.lng], { icon: accommodationIcon });
+    marker.bindPopup(buildPopupContent(item));
+    marker.on('click', () => setActiveListItem('accommodation', item.id));
+    marker.addTo(accommodationLayer);
+    accommodationMarkerMap[item.id] = marker;
+  }
+  registerRouteLocation('accommodation', item);
+});
+
+/* ========================= 比賽場館 Marker ========================= */
+function buildVenuePopupContent(item) {
+  const sportsText = (item.sports && item.sports.length) ? item.sports.join('、') : '';
+  return `
+    <div class="popup-content popup-venue">
+      <div class="popup-title">${item.venueName}</div>
+      <table>
+        ${popupRow('地址', item.address)}
+        ${popupRow('運動項目', sportsText)}
+        ${popupRow('備註', item.note)}
+      </table>
+      <div class="popup-actions">
+        ${gmapLinkHtml(buildGoogleMapsUrl(item))}
+        ${routeButtonHtml('venue', item)}
+      </div>
+    </div>
+  `;
+}
+
+venues.forEach(item => {
+  if (typeof item.lat === 'number' && typeof item.lng === 'number') {
+    const marker = L.marker([item.lat, item.lng], { icon: venueIcon });
+    marker.bindPopup(buildVenuePopupContent(item));
+    marker.on('click', () => setActiveListItem('venue', item.id));
+    marker.addTo(venueLayer);
+    venueMarkerMap[item.id] = marker;
+  }
+  registerRouteLocation('venue', item);
+});
+
+/* ========================= 練習場館 Marker ========================= */
+function buildTrainingVenuePopupContent(item) {
+  const sportsText = (item.sports && item.sports.length) ? item.sports.join('、') : '';
+  return `
+    <div class="popup-content popup-training">
+      <div class="popup-title">${item.venueName}</div>
+      <table>
+        ${popupRow('地址', item.address)}
+        ${popupRow('運動項目', sportsText)}
+        ${popupRow('備註', item.note)}
+      </table>
+      <div class="popup-actions">
+        ${gmapLinkHtml(buildGoogleMapsUrl(item))}
+        ${routeButtonHtml('training', item)}
+      </div>
+    </div>
+  `;
+}
+
+trainingVenues.forEach(item => {
+  if (typeof item.lat === 'number' && typeof item.lng === 'number') {
+    const marker = L.marker([item.lat, item.lng], { icon: trainingVenueIcon });
+    marker.bindPopup(buildTrainingVenuePopupContent(item));
+    marker.on('click', () => setActiveListItem('training', item.id));
+    marker.addTo(trainingVenueLayer);
+    trainingVenueMarkerMap[item.id] = marker;
+  }
+  registerRouteLocation('training', item);
+});
+
+/* ========================= 中繼站 Marker ========================= */
+function buildRelayPopupContent(item) {
+  return `
+    <div class="popup-content popup-relay">
+      <div class="popup-title">${item.stationName}</div>
+      <table>
+        ${popupRow('地址', item.address)}
+        ${popupRow('備註', item.note)}
+      </table>
+      <div class="popup-actions">
+        ${gmapLinkHtml(buildGoogleMapsUrl(item))}
+        ${routeButtonHtml('relay', item)}
+      </div>
+    </div>
+  `;
+}
+
+relayStations.forEach(item => {
+  if (typeof item.lat === 'number' && typeof item.lng === 'number') {
+    const marker = L.marker([item.lat, item.lng], { icon: relayIcon });
+    marker.bindPopup(buildRelayPopupContent(item));
+    marker.on('click', () => setActiveListItem('relay', item.id));
+    marker.addTo(relayLayer);
+    relayMarkerMap[item.id] = marker;
+  }
+  registerRouteLocation('relay', item);
+});
+
+/* =========================================================
+   路線查詢 Modal 邏輯
+
+   - 不使用 navigator.geolocation / 目前位置，起訖點永遠是系統內指定據點。
+   - 目的地下拉選單直接由 routeLocationRegistry（五個既有資料陣列）產生，
+     不建立新的地點資料庫，只顯示地點名稱，不顯示 Place ID／經緯度／Google Maps URL。
+========================================================= */
+
+// 依分類取得目前網站顯示用名稱（與 getDisplayName 邏輯一致，供路線查詢下拉選單使用）
+function getRouteItemDisplayName(item) {
+  return item.hotelName || item.venueName || item.stationName || item.address || '';
+}
+
+// 目的地下拉選單「顯示文字」專用：地點名稱 + 運動項目／代表隊，方便使用者依運動項目辨識目的地。
+// 僅影響顯示文字，不影響 option.value、Google Maps 連結產生邏輯。
+function getRouteOptionLabel(cat, item) {
+  const name = getRouteItemDisplayName(item);
+
+  let categories = [];
+
+  if (cat === 'venue' || cat === 'training') {
+    categories = item.sports || [];
+  } else if (cat === 'accommodation') {
+    categories = item.teams || [];
+  }
+
+  if (!categories.length) {
+    return name;
+  }
+
+  return `${name}｜${categories.join('、')}`;
+}
+
+// 目的地分類 → 資料來源對照（資料來源與 routeLocationRegistry 完全相同，僅供分類選單使用）
+const routeCategoryData = {
+  relay: relayStations,
+  accommodation: accommodations,
+  venue: venues,
+  training: trainingVenues
+};
+
+// 由 "cat:id" 格式的 key 取出分類（例如 "venue:12" → "venue"）
+function getRouteKeyCategory(key) {
+  return key ? key.split(':')[0] : '';
+}
+
+// 依所選分類重新產生「目的地」下拉選單；尚未選擇分類時顯示 disabled 提示
+function populateRouteDestinationOptionsForCategory(cat) {
+  const select = document.getElementById('route-destination-select');
+  select.innerHTML = '';
+
+  const data = routeCategoryData[cat];
+
+  if (!data) {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '請先選擇分類';
+    select.appendChild(placeholder);
+    select.disabled = true;
+    return;
+  }
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '請選擇目的地';
+  select.appendChild(placeholder);
+
+  data.forEach(item => {
+    const option = document.createElement('option');
+    option.value = `${cat}:${item.id}`;
+    option.textContent = getRouteOptionLabel(cat, item);
+    select.appendChild(option);
+  });
+
+  select.disabled = false;
+}
+
+let routeOriginKey = null;
+let routeDestinationKey = '';
+
+function getRouteEntry(key) {
+  return key ? routeLocationRegistry[key] : null;
+}
+
+// 開啟路線查詢 Modal：由 Popup 內「路線查詢」按鈕呼叫，該據點自動成為起點
+function openRouteModal(cat, id) {
+  routeOriginKey = `${cat}:${id}`;
+  routeDestinationKey = '';
+  syncRouteUI();
+  document.getElementById('route-modal-overlay').classList.add('open');
+}
+
+function closeRouteModal() {
+  document.getElementById('route-modal-overlay').classList.remove('open');
+}
+
+// 依目前 routeOriginKey / routeDestinationKey 同步整個 Modal 畫面：
+// 起點文字、目的地分類選單、目的地選單（含其選項與選取值）、Google Maps 連結按鈕。
+// openRouteModal() 與 swapRouteEndpoints() 皆呼叫此函式，避免邏輯分散重複。
+function syncRouteUI() {
+  const originEntry = getRouteEntry(routeOriginKey);
+  document.getElementById('route-origin-label').textContent =
+    originEntry ? getRouteItemDisplayName(originEntry.item) : '（未選擇）';
+
+  const destCat = getRouteKeyCategory(routeDestinationKey);
+  document.getElementById('route-category-select').value = destCat;
+
+  populateRouteDestinationOptionsForCategory(destCat);
+  document.getElementById('route-destination-select').value = routeDestinationKey || '';
+
+  updateRouteDirectionsLink();
+}
+
+// 選擇「目的地分類」後，重新產生對應的「目的地」選單，並清空原本已選的目的地
+function onRouteCategoryChange() {
+  const cat = document.getElementById('route-category-select').value;
+  routeDestinationKey = '';
+  populateRouteDestinationOptionsForCategory(cat);
+  updateRouteDirectionsLink();
+}
+
+function onRouteDestinationChange() {
+  const select = document.getElementById('route-destination-select');
+  routeDestinationKey = select.value;
+  updateRouteDirectionsLink();
+}
+
+// 「⇄ 交換起終點」：尚未選擇目的地時無法交換；交換後自動同步新目的地分類與目的地選單，
+// 不需使用者重新手動選分類，也不需重新載入頁面
+function swapRouteEndpoints() {
+  if (!routeDestinationKey) return;
+  const temp = routeOriginKey;
+  routeOriginKey = routeDestinationKey;
+  routeDestinationKey = temp;
+  syncRouteUI();
+}
+
+function updateRouteDirectionsLink() {
+  const link = document.getElementById('route-directions-link');
+  const originEntry = getRouteEntry(routeOriginKey);
+  const destEntry = getRouteEntry(routeDestinationKey);
+
+  if (originEntry && destEntry) {
+    const url = buildGoogleMapsDirectionsUrl(originEntry.item, destEntry.item);
+    if (url) {
+      link.href = url;
+      link.classList.remove('disabled');
+      return;
+    }
+  }
+
+  link.href = '#';
+  link.classList.add('disabled');
+}
+
+// 點擊背景遮罩或按 Esc 鍵關閉 Modal
+document.getElementById('route-modal-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'route-modal-overlay') closeRouteModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeRouteModal();
+});
+
+// 防止尚未選擇目的地時仍點擊「Google Maps 查看路線」
+document.getElementById('route-directions-link').addEventListener('click', (e) => {
+  if (!routeOriginKey || !routeDestinationKey) {
+    e.preventDefault();
+  }
+});
+
+// 取得路線查詢使用的地點名稱：優先序 googlePlaceName → 網站顯示名稱 → address
+function getRouteLocationName(item) {
+  const displayName = getRouteItemDisplayName(item);
+  return (item.googlePlaceName || displayName || item.address || '').trim();
+}
+
+// 產生 Google Maps 路線（Directions）URL，供「路線查詢」功能專用。
+// 與 buildGoogleMapsUrl()（單點查看）完全獨立，互不影響。
+// 不使用目前位置／GPS／navigator.geolocation，起訖點永遠是系統內指定據點。
+//
+// origin / destination      優先使用 googlePlaceName，其次網站顯示名稱，最後 address
+// origin_place_id / destination_place_id  僅在該據點存在 placeId 時加入，
+//                            缺漏時不產生空白參數，避免因單筆資料缺少 Place ID 而出錯
+function buildGoogleMapsDirectionsUrl(origin, destination) {
+  if (!origin || !destination) return '';
+
+  const originName = getRouteLocationName(origin);
+  const destName = getRouteLocationName(destination);
+
+  if (!originName || !destName) return '';
+
+  let url = 'https://www.google.com/maps/dir/?api=1' +
+    `&origin=${encodeURIComponent(originName)}` +
+    `&destination=${encodeURIComponent(destName)}`;
+
+  if (origin.placeId) {
+    url += `&origin_place_id=${encodeURIComponent(origin.placeId.trim())}`;
+  }
+  if (destination.placeId) {
+    url += `&destination_place_id=${encodeURIComponent(destination.placeId.trim())}`;
+  }
+
+  return url;
+}
+
+/* ========================= 圖層開關控制面板 ========================= */
+const LayerControl = L.Control.extend({
+  options: { position: 'topright' },
+  onAdd: function () {
+    const container = L.DomUtil.create('div', 'layer-control');
+    container.innerHTML = `
+      <div class="layer-control-title">圖層顯示</div>
+      <label><input type="checkbox" id="toggle-relay"><span class="swatch relay"></span>中繼站</label>
+      <label><input type="checkbox" id="toggle-venue"><span class="swatch venue"></span>比賽場館</label>
+      <label><input type="checkbox" id="toggle-training"><span class="swatch training"></span>練習場館</label>
+      <label><input type="checkbox" id="toggle-accommodation" checked><span class="swatch accommodation"></span>住宿地點</label>
+    `;
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+    return container;
+  }
+});
+map.addControl(new LayerControl());
+
+document.getElementById('toggle-relay').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    map.addLayer(relayLayer);
+  } else {
+    map.removeLayer(relayLayer);
+  }
+});
+
+document.getElementById('toggle-venue').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    map.addLayer(venueLayer);
+  } else {
+    map.removeLayer(venueLayer);
+  }
+});
+
+document.getElementById('toggle-training').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    map.addLayer(trainingVenueLayer);
+  } else {
+    map.removeLayer(trainingVenueLayer);
+  }
+});
+
+document.getElementById('toggle-accommodation').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    map.addLayer(accommodationLayer);
+  } else {
+    map.removeLayer(accommodationLayer);
+  }
+});
+
+/* ========================= 左側清單渲染（依分頁切換 中繼站 / 比賽場館 / 練習場館 / 住宿地點） ========================= */
+const listEl = document.getElementById('accommodation-list');
+const listTitleEl = document.getElementById('list-title');
+const listCountEl = document.getElementById('list-count');
+const tabButtons = document.querySelectorAll('#sidebar-tabs button');
+
+// 各分頁設定：資料來源、圖層、markerMap、標題文字、清單卡片渲染方式
+const tabConfig = {
+  relay: {
+    title: '中繼站清單',
+    data: relayStations,
+    layer: relayLayer,
+    toggleId: 'toggle-relay',
+    markerMap: relayMarkerMap,
+    searchText: item => [item.stationName, item.address, item.note].join(' '),
+    renderItem: item => `
+      <div class="item-name">${item.stationName}</div>
+      ${tagHtml(item.note || '中繼站', 'tag-relay')}
+      <div class="item-address">${item.address}</div>
+    `
+  },
+  venue: {
+    title: '比賽場館清單',
+    data: venues,
+    layer: venueLayer,
+    toggleId: 'toggle-venue',
+    markerMap: venueMarkerMap,
+    searchText: item => [item.venueName, (item.sports || []).join('、'), item.address, item.note].join(' '),
+    renderItem: item => `
+      <div class="item-name">${item.venueName}</div>
+      ${tagHtml((item.sports && item.sports.length) ? item.sports.join('、') : '', 'tag-venue')}
+      <div class="item-address">${item.address}</div>
+    `
+  },
+  training: {
+    title: '練習場館清單',
+    data: trainingVenues,
+    layer: trainingVenueLayer,
+    toggleId: 'toggle-training',
+    markerMap: trainingVenueMarkerMap,
+    searchText: item => [item.venueName, (item.sports || []).join('、'), item.address, item.note].join(' '),
+    renderItem: item => `
+      <div class="item-name">${item.venueName}</div>
+      ${tagHtml((item.sports && item.sports.length) ? item.sports.join('、') : '', 'tag-training')}
+      <div class="item-address">${item.address}</div>
+    `
+  },
+  accommodation: {
+    title: '住宿地點清單',
+    data: accommodations,
+    layer: accommodationLayer,
+    toggleId: 'toggle-accommodation',
+    markerMap: accommodationMarkerMap,
+    searchText: item => [item.hotelName, (item.teams || []).join('、'), item.address, item.note].join(' '),
+    renderItem: item => `
+      <div class="item-name">${item.hotelName}</div>
+      ${tagHtml((item.teams && item.teams.length) ? item.teams.join('、') : '')}
+      <div class="item-address">${item.address}</div>
+    `
+  }
+};
+
+let activeTab = 'accommodation'; // 預設顯示住宿地點
+
+// 手機版（RWD）判斷
+// 僅影響手機版的捲動互動，桌機版邏輯與版面完全不受影響
+function isMobileView() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+function renderList(tab, keyword = '') {
+  activeTab = tab;
+  const config = tabConfig[tab];
+
+  // 更新分頁按鈕外觀
+  tabButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+
+  // 更新標題
+  listTitleEl.textContent = config.title;
+
+  // 切到「比賽場館」或「中繼站」分頁時，若該圖層尚未開啟則自動開啟；不強制關閉其他圖層
+  if (tab !== 'accommodation' && !map.hasLayer(config.layer)) {
+    map.addLayer(config.layer);
+    const toggleEl = document.getElementById(config.toggleId);
+    if (toggleEl) toggleEl.checked = true;
+  }
+
+  // 僅在目前頁籤內搜尋，不跨分類；不區分大小寫
+  const trimmedKeyword = (keyword || '').trim().toLowerCase();
+  const filteredData = trimmedKeyword
+    ? config.data.filter(item => config.searchText(item).toLowerCase().includes(trimmedKeyword))
+    : config.data;
+
+  // 更新筆數（依搜尋結果同步更新）
+  listCountEl.textContent = `共 ${filteredData.length} 筆`;
+
+  // 重繪清單
+  listEl.innerHTML = '';
+
+  if (filteredData.length === 0) {
+    const emptyLi = document.createElement('li');
+    emptyLi.className = 'list-empty';
+    emptyLi.textContent = '查無符合資料';
+    listEl.appendChild(emptyLi);
+    return;
+  }
+
+  filteredData.forEach(item => {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    li.classList.add(`cat-${tab}`);
+    li.innerHTML = config.renderItem(item);
+    li.addEventListener('click', () => {
+      // 1. 確認該類別的地圖圖層已開啟
+      if (!map.hasLayer(config.layer)) {
+        map.addLayer(config.layer);
+        const toggleEl = document.getElementById(config.toggleId);
+        if (toggleEl) toggleEl.checked = true;
+      }
+
+      // 2. 設定清單項目為 active（清單高亮效果）
+      setActiveListItem(tab, item.id);
+
+      // 若該筆資料尚未提供座標（資料待補齊），地圖上不會有對應 Marker，
+      // 此時僅高亮清單項目，不執行地圖定位／開啟 Popup（避免因缺少 Marker 而報錯）
+      const targetMarker = config.markerMap[item.id];
+
+      if (isMobileView()) {
+        // 手機版（清單優先、地圖定位）：
+        // 3. 平滑捲動到地圖區域
+        const mapEl = document.getElementById('map');
+        if (mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // 4～6. 捲動完成後（約 300ms）才重新計算地圖尺寸、定位並開啟 Popup，
+        //       避免畫面尚未捲動完成就開啟 Popup 造成定位不準
+        window.setTimeout(() => {
+          map.invalidateSize();
+          if (targetMarker) {
+            map.flyTo([item.lat, item.lng], 15, { duration: 0.8 });
+            targetMarker.openPopup();
+          }
+        }, 300);
+      } else {
+        // 桌機版：維持原有行為，不受影響（直接定位並開啟 Popup）
+        if (targetMarker) {
+          map.flyTo([item.lat, item.lng], 15, { duration: 0.8 });
+          targetMarker.openPopup();
+        }
+      }
+    });
+    listEl.appendChild(li);
+  });
+}
+
+// 分頁按鈕上顯示各分類筆數（例如：住宿地點（18））
+// 桌機版此標籤透過 CSS 隱藏，不影響桌機版文字與版面
+Object.keys(tabConfig).forEach(tab => {
+  const btn = document.querySelector(`#sidebar-tabs button[data-tab="${tab}"]`);
+  const countSpan = btn ? btn.querySelector('.tab-count') : null;
+  if (countSpan) {
+    countSpan.textContent = `（${tabConfig[tab].data.length}）`;
+  }
+});
+
+const searchInputEl = document.getElementById('list-search');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // 切換頁籤時，搜尋框自動清空，恢復顯示該分類完整清單
+    if (searchInputEl) searchInputEl.value = '';
+    renderList(btn.dataset.tab, '');
+  });
+});
+
+if (searchInputEl) {
+  searchInputEl.addEventListener('input', (e) => {
+    // 即時篩選目前頁籤的清單，不跨分類搜尋、不影響地圖 Marker
+    renderList(activeTab, e.target.value);
+  });
+}
+
+function setActiveListItem(tab, id) {
+  // 若目前顯示的分頁與 marker 所屬分頁不同，先切換清單分頁（並清空搜尋框）再標記選取項目
+  if (activeTab !== tab) {
+    if (searchInputEl) searchInputEl.value = '';
+    renderList(tab, '');
+  }
+  document.querySelectorAll('#accommodation-list li').forEach(li => {
+    li.classList.toggle('active', Number(li.dataset.id) === Number(id));
+  });
+}
+
+// 初始渲染：預設顯示「住宿地點」清單（手機版與桌機版皆預設完整顯示，不收合）
+renderList('accommodation');
+</script>
+
+</body>
+</html>

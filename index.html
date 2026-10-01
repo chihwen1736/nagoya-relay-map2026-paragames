@@ -1021,7 +1021,7 @@
 <script>
 /* ========================= 資料更新日期 ========================= */
 // 唯一日期來源：頁尾文字皆由此變數動態帶入，不在多處重複手動輸入日期
-const lastUpdated = "2026年9月7日";
+const lastUpdated = "2026年9月30日";
 
 const desktopUpdatedEl = document.getElementById('footer-updated-desktop');
 if (desktopUpdatedEl) {
@@ -1163,30 +1163,18 @@ const venues = [
   },
   {
     id: 8,
-    venueName: "Okazaki Chuo Sogo Park Gymnasium",
-    address: "愛知県岡崎市高隆寺町字峠1番地",
-    lat: 34.9474933912651,
-    lng: 137.212114096213,
-    googleMapUrl: "https://maps.app.goo.gl/LQvHqQhKd1KTY2UZA",
-    placeId: "ChIJibIVe4C8BGARddoDrez3GPc",
-    googlePlaceName: "Okazaki Central Park General Gymnasium",
-    sports: ["坐地排球"],
-    note: ""
-  },
-  {
-    id: 9,
     venueName: "Nagoya City General Gymnasium [Rainbow Pool]",
-    address: "5 Chome-1-16 Higashimatabeecho, Minami Ward, Nagoya, Aichi 457-0833日本",
-    lat: 35.0960563460898,
-    lng: 136.923701758738,
-    googleMapUrl: "https://maps.app.goo.gl/huRTmpDmHBUhqmUN9",
+    address: "5 Chome-1-5 Higashimatabeecho, Minami Ward, Nagoya, Aichi 457-0833日本",
+    lat: 35.0960687778736,
+    lng: 136.923366169831,
+    googleMapUrl: "https://maps.app.goo.gl/ETyUcJUe3A1mCHFa8",
     placeId: "ChIJXSQQI797A2ARTB2rtM6MJ_I",
     googlePlaceName: "Kurokokun hall",
     sports: ["游泳"],
     note: ""
   },
   {
-    id: 10,
+    id: 9,
     venueName: "SKY HALL TOYOTA",
     address: "日本〒471-0861 Aichi, Toyota, Hachimancho, 1 Chome−２０−20 豊田市総合体育館",
     lat: 35.0814767456224,
@@ -1198,19 +1186,19 @@ const venues = [
     note: ""
   },
   {
-    id: 11,
+    id: 10,
     venueName: "Nagoya City Mizuho Park Gymnasium",
-    address: "3 Chome-4 Tanabetori, Mizuho Ward, Nagoya, Aichi 467-0027日本",
-    lat: 35.1284539206483,
-    lng: 136.945853832076,
-    googleMapUrl: "https://maps.app.goo.gl/sfjQaYhWaPXQo6JFA",
+    address: "3 Chome-4 Tanabetori, Mizuho Ward, Nagoya, Aichi 467-0027",
+    lat: 35.1284636791459,
+    lng: 136.945581170051,
+    googleMapUrl: "https://maps.app.goo.gl/tV2MMrGJSSo9Y97b6",
     placeId: "ChIJRwUCDtZ7A2ARI-Dg_6qKvXY",
     googlePlaceName: "Paloma Mizuho Arena",
     sports: ["跆拳道"],
     note: ""
   },
   {
-    id: 12,
+    id: 11,
     venueName: "Nagoya City Inae Sports Center",
     address: "5 Chome-1-10 Noseki, Minato Ward, Nagoya, Aichi 455-0845日本",
     lat: 35.0799725719546,
@@ -1222,7 +1210,7 @@ const venues = [
     note: ""
   },
   {
-    id: 13,
+    id: 12,
     venueName: "Nagoya City Higashiyama Park Tennis Center",
     address: "Urayama-60-19 Tenpakucho Oaza Yagoto, Tempaku Ward, Nagoya, Aichi 468-0071日本",
     lat: 35.1479180895597,
@@ -1251,6 +1239,54 @@ const venues = [
    note          : 備註
 ========================================================= */
 const trainingVenues = [
+  {
+    id: 1,
+    venueName: "Mihama Sports Park Athletics Stadium",
+    address: "Okudamae-1番地1 Okuda, Mihama, Chita District, Aichi 470-3233",
+    lat: 34.7889322587563,
+    lng: 136.867361645558,
+    googleMapUrl: "https://maps.app.goo.gl/HpxmWwvmx1Cxrt779",
+    placeId: "ChIJe4FAufCJBGARVWi6bvN2WDo",
+    googlePlaceName: "Mihama Sports Park Athletic Field",
+    sports: ["田徑"],
+    note: ""
+  },
+  {
+    id: 2,
+    venueName: "Mielparque Nagoya",
+    address: "3 Chome-16-16 Aoi, Higashi Ward, Nagoya, Aichi 461-0004日本",
+    lat: 35.1713925831739,
+    lng: 136.929470042495,
+    googleMapUrl: "https://maps.app.goo.gl/ZD2t873NF4V1PmN37",
+    placeId: "ChIJeddf7O5wA2ARd3m_K958jMg",
+    googlePlaceName: "Mielparque Nagoya",
+    sports: ["健力"],
+    note: ""
+  },
+  {
+    id: 3,
+    venueName: "Aichi Korogi Athletic Park Pool",
+    address: "Nishikorogi-323-8 Kitashincho, Nisshin, Aichi 470-0103日本",
+    lat: 35.1656248437073,
+    lng: 137.048320451233,
+    googleMapUrl: "https://maps.app.goo.gl/AKYLGDSYq9ZZyuJp9",
+    placeId: "ChIJkzjjzPhlA2ARZtMG3MlZ8j0",
+    googlePlaceName: "口論義運動公園 温水プール",
+    sports: ["游泳"],
+    note: ""
+  },
+  {
+    id: 4,
+    venueName: "Nagoya City Gymnasium",
+    address: "2 Chome-5-3 Mutsuno, Atsuta Ward, Nagoya, Aichi 456-0023日本",
+    lat: 35.1343334604084,
+    lng: 136.914543000408,
+    googleMapUrl: "https://maps.app.goo.gl/c8buPcJWo6rxSan26",
+    placeId: "ChIJO9BXow96A2ARfYheCZ3ya1c",
+    googlePlaceName: "Nagoya City Gymnasium",
+    sports: ["跆拳道"],
+    note: ""
+  },
 ];
 
 /* =========================================================
@@ -1357,9 +1393,9 @@ const accommodations = [
     id: 8,
     hotelName: "TIAD, Autograph Collection",
     address: "5 Chome-15-19 Sakae, Naka Ward, Nagoya, Aichi 460-0008日本",
-    lat: 35.1639509561977,
-    lng: 136.910212232992,
-    googleMapUrl: "https://maps.app.goo.gl/6LfTisqF3orydkas9",
+    lat: 35.1640288722875,
+    lng: 136.910053007419,
+    googleMapUrl: "https://maps.app.goo.gl/FbcUaRfoiwowSmun9",
     placeId: "ChIJO_zJmPVxA2AR7KyOgNsgs4o",
     googlePlaceName: "名古屋TIAD傲途格精選酒店",
     teams: ["地板滾球", "輪椅網球"],
@@ -1374,7 +1410,7 @@ const accommodations = [
     googleMapUrl: "https://maps.app.goo.gl/7ZkUKdKirBKjF4du6",
     placeId: "ChIJI7rLudpwA2ARrwmYTI1Wm2w",
     googlePlaceName: "名古屋東急飯店",
-    teams: ["柔道"],
+    teams: ["盲人足球", "柔道"],
     note: ""
   },
   {
@@ -1410,8 +1446,8 @@ const accommodations = [
     googleMapUrl: "https://maps.app.goo.gl/vSt81nntHUJtu8to6",
     placeId: "ChIJ2QpdOOx9BGARiLDRW9CH_sg",
     googlePlaceName: "中部國際機場 新特麗亞飯店",
-    teams: ["游泳"],
-    note: ""
+    teams: ["坐地排球", "游泳"],
+    note: "坐地排球（Women）"
   },
   {
     id: 13,
@@ -1427,13 +1463,13 @@ const accommodations = [
   },
   {
     id: 14,
-    hotelName: "",
-    address: "",
-    lat: null,
-    lng: null,
-    googleMapUrl: "",
-    placeId: "",
-    googlePlaceName: "",
+    hotelName: "Plaza Hotel Toyota",
+    address: "1 Chome-88 Hoeicho, Toyota, Aichi 470-1201日本",
+    lat: 35.051653614418,
+    lng: 137.156115842787,
+    googleMapUrl: "https://maps.app.goo.gl/inEaBSx6o1BygZvj8",
+    placeId: "ChIJqTcseb-hBGARyoxJnr8Zo1A",
+    googlePlaceName: "Plaza Hotel Toyota",
     teams: ["桌球"],
     note: ""
   },
@@ -1458,7 +1494,7 @@ const accommodations = [
     googleMapUrl: "https://maps.app.goo.gl/b1afsXzkn2UyrVZR7",
     placeId: "ChIJ6SpyXaB5A2ARtkP_PZ1ohiE",
     googlePlaceName: "名古屋掖済会病院付属埠頭診療所",
-    teams: ["輪椅擊劍"],
+    teams: ["輪椅籃球", "輪椅擊劍"],
     note: ""
   },
 ];
